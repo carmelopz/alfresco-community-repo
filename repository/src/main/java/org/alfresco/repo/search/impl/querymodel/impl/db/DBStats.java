@@ -27,20 +27,37 @@ package org.alfresco.repo.search.impl.querymodel.impl.db;
 
 import org.springframework.util.StopWatch;
 
-public class DBStats
+public final class DBStats
 {
-    public static final ThreadLocal<StopWatch> SW = new ThreadLocal<StopWatch>();
+    public static final ThreadLocal<StopWatch> QUERY_STOPWATCH = new ThreadLocal<StopWatch>();
+    public static final ThreadLocal<SingleTaskRestartableWatch> ACL_READ_STOPWATCH = new ThreadLocal<SingleTaskRestartableWatch>();
+    public static final ThreadLocal<SingleTaskRestartableWatch> ACL_OWNER_STOPWATCH = new ThreadLocal<SingleTaskRestartableWatch>();
+    public static final ThreadLocal<SingleTaskRestartableWatch> HANDLER_STOPWATCH = new ThreadLocal<SingleTaskRestartableWatch>();
     
     private DBStats() {}
     
-    public static StopWatch resetStopwatch() {
-        StopWatch sw = new StopWatch();
-        SW.set(sw);
-        return sw;
+    public static void resetStopwatches() {
+        QUERY_STOPWATCH.set(new StopWatch());
+        HANDLER_STOPWATCH.set(new SingleTaskRestartableWatch("tot"));
+        ACL_READ_STOPWATCH.set(new SingleTaskRestartableWatch("acl"));
+        ACL_OWNER_STOPWATCH.set(new SingleTaskRestartableWatch("own"));
     }
     
-    public static StopWatch stopwatch() {
-        return SW.get();
+    public static StopWatch queryStopWatch() {
+        return QUERY_STOPWATCH.get();
     }
     
+    public static SingleTaskRestartableWatch aclReadStopWatch() {
+        return ACL_READ_STOPWATCH.get();
+    }
+    
+    public static SingleTaskRestartableWatch aclOwnerStopWatch() {
+        return ACL_OWNER_STOPWATCH.get();
+    }
+    
+    public static SingleTaskRestartableWatch handlerStopWatch() {
+        return HANDLER_STOPWATCH.get();
+    }
 }
+
+

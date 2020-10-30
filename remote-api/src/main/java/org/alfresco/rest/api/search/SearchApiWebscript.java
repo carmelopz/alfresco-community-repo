@@ -25,8 +25,12 @@
  */
 package org.alfresco.rest.api.search;
 
-import org.alfresco.repo.search.impl.querymodel.impl.db.DBQueryEngine;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.alfresco.repo.search.impl.querymodel.impl.db.DBStats;
+import org.alfresco.repo.search.impl.querymodel.impl.db.SingleTaskRestartableWatch;
 import org.alfresco.rest.api.model.Node;
 import org.alfresco.rest.api.search.context.SearchRequestContext;
 import org.alfresco.rest.api.search.impl.ResultMapper;
@@ -53,11 +57,6 @@ import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.util.StopWatch;
 import org.springframework.util.StopWatch.TaskInfo;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * An implementation of the {{baseUrl}}/{{networkId}}/public/search/versions/1/search endpoint
@@ -87,7 +86,7 @@ public class SearchApiWebscript extends AbstractWebScript implements RecognizedP
     @Override
     public void execute(WebScriptRequest webScriptRequest, WebScriptResponse webScriptResponse) throws IOException
     {
-        StopWatch sw = new StopWatch();
+        StopWatch apiStopWatch = new StopWatch();
         try {
             //Turn JSON into a Java object respresentation
             SearchQuery searchQuery = extractJsonContent(webScriptRequest, assistant.getJsonHelper(), SearchQuery.class);
@@ -102,26 +101,38 @@ public class SearchApiWebscript extends AbstractWebScript implements RecognizedP
             SearchParameters searchParams = searchMapper.toSearchParameters(params, searchQuery, searchRequestContext);
 
             //Call searchService
-            sw.start("nodes");
+            apiStopWatch.start("nodes");
             ResultSet results = searchService.query(searchParams);
-            sw.stop();
+            apiStopWatch.stop();
 
             //Turn solr results into JSON
-            sw.start("props");
+            apiStopWatch.start("props");
             CollectionWithPagingInfo<Node> resultJson = resultMapper.toCollectionWithPagingInfo(params, searchRequestContext, searchQuery, results);
             //Post-process the request and pass in params, eg. params.getFilter()
             Object toRender = helper.processAdditionsToTheResponse(null, null, null, params, resultJson);
-            sw.stop();
+            apiStopWatch.stop();
             
             // store execution time in a special header
             StringBuilder sb = new StringBuilder();
-            sb.append("total=")
-            .append(sw.getTotalTimeMillis())
-            .append("ms; ");
-            addStopWatchStats(sb, sw);
-            sb.append(" [");
-            addStopWatchStats(sb, DBStats.stopwatch());
-            sb.append("]");
+
+            sb.append("api={");
+            sb.append("tot=")
+                .append(apiStopWatch.getTotalTimeMillis())
+                .append("ms,");
+            addStopWatchStats(sb, apiStopWatch);
+            sb.append("}; ");
+
+            sb.append("db={");
+            addStopWatchStats(sb, DBStats.queryStopWatch());
+            sb.append("}; ");
+
+            sb.append("query={");
+            addStopWatchStats(sb, DBStats.handlerStopWatch());
+            sb.append(",");
+            addStopWatchStats(sb, DBStats.aclReadStopWatch());
+            sb.append(",");
+            addStopWatchStats(sb, DBStats.aclOwnerStopWatch());
+            sb.append("}");
 
             webScriptResponse.addHeader("X-Response-Stats", sb.toString());
 
@@ -143,8 +154,8 @@ public class SearchApiWebscript extends AbstractWebScript implements RecognizedP
             if (first)
                 first = false;
             else
-                sb.append("; ");
-
+                sb.append(",");
+            
             sb.append(task.getTaskName())
             .append("=")
             .append(task.getTimeMillis())
@@ -155,6 +166,17 @@ public class SearchApiWebscript extends AbstractWebScript implements RecognizedP
             .append(pc).append("%")
             .append(")");
         }
+    }
+
+    private void addStopWatchStats(StringBuilder sb, SingleTaskRestartableWatch watch)
+    {
+        long decimillis = (watch.getTotalTimeMicros()+5)/100;
+        double millis = decimillis/10.0;
+
+        sb.append(watch.getName())
+        .append("=")
+        .append(millis)
+        .append("ms");
     }
 
     /**
