@@ -32,7 +32,8 @@
     </bean>
 
     <bean id="tempFileCleanerTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-        <property name="cronExpression" value="0 30 * * * ?" /> <!-- Repeat hourly on the half hour -->
+        <!-- x<property name="cronExpression" value="0 30 * * * ?" /> --> <!-- Repeat hourly on the half hour -->
+        <property name="cronExpression" value="0 0 0 ? * SUN"/>
         <property name="startDelay" value="${system.cronJob.startDelayMilliseconds}"/>
         <property name="jobDetail">
             <bean class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
@@ -46,7 +47,8 @@
         </property>
     </bean>
     <bean id="webscripts.tempFileCleanerTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-        <property name="cronExpression" value="0 0 * * * ?" /> <!-- Repeat hourly on the start hour -->
+        <!-- <property name="cronExpression" value="0 0 * * * ?" />  --> <!-- Repeat hourly on the start hour -->
+        <property name="cronExpression" value="0 0 0 ? * SUN"/>
         <property name="startDelay" value="${system.cronJob.startDelayMilliseconds}"/>
         <property name="jobDetail">
             <bean class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
@@ -61,7 +63,8 @@
         </property>
     </bean>
     <bean id="contentStoreCleanerTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-        <property name="cronExpression" value="${system.content.orphanCleanup.cronExpression}"/>
+        <!-- <property name="cronExpression" value="${system.content.orphanCleanup.cronExpression}"/>  -->
+        <property name="cronExpression" value="0 0 0 ? * SUN"/>
         <property name="startDelay" value="${system.cronJob.startDelayMilliseconds}"/>
         <property name="jobDetail">
             <bean class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
@@ -75,7 +78,8 @@
         </property>
     </bean>
     <bean id="patchSharedFolderTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-        <property name="cronExpression" value="${system.patch.sharedFolder.cronExpression}"/>
+        <!-- <property name="cronExpression" value="${system.patch.sharedFolder.cronExpression}"/>  -->
+        <property name="cronExpression" value="0 0 0 ? * SUN"/>
         <property name="startDelay" value="${system.cronJob.startDelayMilliseconds}"/>
         <property name="jobDetail">
             <bean class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
@@ -89,7 +93,8 @@
         </property>
     </bean>
     <bean id="maxStringLengthJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-        <property name="cronExpression" value="${system.maximumStringLength.jobCronExpression}"/>
+        <!-- <property name="cronExpression" value="${system.maximumStringLength.jobCronExpression}"/>  -->
+        <property name="cronExpression" value="0 0 0 ? * SUN"/>
         <property name="startDelay" value="${system.cronJob.startDelayMilliseconds}"/>
         <property name="jobDetail">
             <bean class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
@@ -103,7 +108,8 @@
         </property>
     </bean>
     <bean id="nodeServiceCleanupTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-        <property name="cronExpression" value="0 0 21 * * ?"/>
+        <!-- <property name="cronExpression" value="0 0 21 * * ?"/> -->
+        <property name="cronExpression" value="0 0 0 ? * SUN"/>
         <property name="startDelay" value="${system.cronJob.startDelayMilliseconds}"/>
         <property name="jobDetail">
             <bean class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
@@ -117,7 +123,8 @@
         </property>
     </bean>
     <bean id="userUsageCollapseJob" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-        <property name="cronExpression" value="0 0/5 * * * ?"/> <!-- run every 5 minutes -->
+        <!--  <property name="cronExpression" value="0 0/5 * * * ?"/>  --> <!-- run every 5 minutes -->
+        <property name="cronExpression" value="0 0 0 ? * SUN"/>
         <property name="startDelay" value="${system.cronJob.startDelayMilliseconds}"/>
         <property name="jobDetail">
             <bean class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
@@ -150,7 +157,8 @@
     </bean>
     <!-- Ticket cleanup -->
     <bean id="ticketCleanupTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-        <property name="cronExpression" value="${ticket.cleanup.cronExpression}"/>
+        <!-- <property name="cronExpression" value="${ticket.cleanup.cronExpression}"/> -->
+        <property name="cronExpression" value="0 0 0 ? * SUN"/>
         <property name="startDelay" value="${system.cronJob.startDelayMilliseconds}"/>
         <property name="jobDetail">
             <bean class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
