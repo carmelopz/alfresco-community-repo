@@ -51,6 +51,8 @@ import org.alfresco.repo.cache.lookup.EntityLookupCache.EntityLookupCallbackDAOA
 import org.alfresco.repo.domain.node.Node;
 import org.alfresco.repo.domain.node.NodeDAO;
 import org.alfresco.repo.domain.node.NodeVersionKey;
+import org.alfresco.repo.domain.permissions.AclCrudDAO;
+import org.alfresco.repo.domain.permissions.Authority;
 import org.alfresco.repo.domain.qname.QNameDAO;
 import org.alfresco.repo.search.SimpleResultSetMetaData;
 import org.alfresco.repo.search.impl.lucene.PagingLuceneResultSet;
@@ -126,6 +128,13 @@ public class DBQueryEngine implements QueryEngine
     EntityLookupCache<Long, Node, NodeRef> nodesCache;
 
     private SimpleCache<NodeVersionKey, Set<QName>> aspectsCache;
+
+    private AclCrudDAO aclCrudDAO;
+
+    public void setAclCrudDAO(AclCrudDAO aclCrudDAO)
+    {
+        this.aclCrudDAO = aclCrudDAO;
+    }
 
     public void setMaxPermissionChecks(int maxPermissionChecks)
     {
@@ -334,10 +343,10 @@ public class DBQueryEngine implements QueryEngine
 
         logger.debug("- query sent to the database");
         sw.start("ttfr");
-        template.select(pickQueryTemplate(options), dbQuery, new ResultHandler<Node>()
+        template.select(pickQueryTemplate(options), dbQuery, new ResultHandler<NodeEntityWithOwner>()
         {
             @Override
-            public void handleResult(ResultContext<? extends Node> context)
+            public void handleResult(ResultContext<? extends NodeEntityWithOwner> context)
             {
                 handlerStopWatch().start();
                 try
@@ -351,7 +360,7 @@ public class DBQueryEngine implements QueryEngine
             }
 
             private void doHandleResult(NodePermissionAssessor permissionAssessor, StopWatch sw, List<Node> nodes,
-                    int requiredNodes, ResultContext<? extends Node> context)
+                    int requiredNodes, ResultContext<? extends NodeEntityWithOwner> context)
             {
                 if (permissionAssessor.isFirstRecord())
                 {
@@ -365,7 +374,7 @@ public class DBQueryEngine implements QueryEngine
                     return;
                 }
 
-                Node node = context.getResultObject();
+                NodeEntityWithOwner node = context.getResultObject();
 
                 if (permissionAssessor.isIncluded(node))
                 {
@@ -439,7 +448,7 @@ public class DBQueryEngine implements QueryEngine
 
         private final boolean isAdminReading;
 
-        private final String currentUsername;
+        private final Authority authority;
 
         private final Map<Long, Boolean> aclReadCache = new HashMap<>();
 
@@ -460,10 +469,10 @@ public class DBQueryEngine implements QueryEngine
             Set<String> authorisations = permissionService.getAuthorisations();
             this.isAdminReading = authorisations.contains(AuthenticationUtil.getAdminRoleName());
 
-            currentUsername = AuthenticationUtil.getRunAsUser();
+            authority = aclCrudDAO.getAuthority(AuthenticationUtil.getRunAsUser());
         }
 
-        public boolean isIncluded(Node node)
+        public boolean isIncluded(NodeEntityWithOwner node)
         {
             if (isFirstRecord())
             {
@@ -479,11 +488,12 @@ public class DBQueryEngine implements QueryEngine
             return checksPerformed == 0;
         }
 
-        boolean isReallyIncluded(Node node)
+        boolean isReallyIncluded(NodeEntityWithOwner node)
         {
             return  isAdminReading || 
                     canRead(node.getAclId()) ||
-                    isOwnerReading(node);
+                    isOwnerReading(node) 
+                    ;
         }
 
         public void setMaxPermissionChecks(int maxPermissionChecks)
@@ -513,13 +523,17 @@ public class DBQueryEngine implements QueryEngine
             this.maxPermissionCheckTimeMillis = maxPermissionCheckTimeMillis;
         }
 
-        private boolean isOwnerReading(Node node)
+        private boolean isOwnerReading(NodeEntityWithOwner node)
         {
+            if (node.getOwnerId() != 0) {
+                return node.getOwnerId() == authority.getId();
+            }
+
             aclOwnerStopWatch().start();
             try
             {
                 String owner = getOwner(node);
-                if (EqualsHelper.nullSafeEquals(currentUsername, owner))
+                if (EqualsHelper.nullSafeEquals(authority.getAuthority(), owner))
                 {
                     return true;
                 }

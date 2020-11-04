@@ -7,6 +7,7 @@
 	<sql id="sql_select_byDynamicQueryOnDenormTable" >
         select 
             node.id                   as id,
+            node.owner_id             as owner_id,
             alf_node.version          as version,
             store.id                  as store_id,
             store.protocol            as protocol,

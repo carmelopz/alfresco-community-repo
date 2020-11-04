@@ -4,12 +4,28 @@
 
 <mapper namespace="alfresco.metadata.query">
 
-  <select id="select_byDynamicQuery" fetchSize="200" parameterType="org.alfresco.repo.search.impl.querymodel.impl.db.DBQuery" resultMap="alfresco.node.result_Node">
-      <include refid="sql_select_byDynamicQuery"/>   
+  <select id="select_byDynamicQuery" fetchSize="200" parameterType="org.alfresco.repo.search.impl.querymodel.impl.db.DBQuery" resultMap="result_NodeWithOwner">
+    <include refid="sql_select_byDynamicQuery"/>   
   </select>
   
-  <select id="select_byDynamicQueryFast" fetchSize="200" parameterType="org.alfresco.repo.search.impl.querymodel.impl.db.DBQuery" resultMap="alfresco.node.result_Node">
-		<include refid="sql_select_byDynamicQueryOnDenormTable"/>   
+  <select id="select_byDynamicQueryFast" fetchSize="200" parameterType="org.alfresco.repo.search.impl.querymodel.impl.db.DBQuery" resultMap="result_NodeWithOwner">
+	<include refid="sql_select_byDynamicQueryOnDenormTable"/>   
   </select>
+
+  <resultMap id="result_NodeWithOwner" type="org.alfresco.repo.search.impl.querymodel.impl.db.NodeEntityWithOwner">
+    <id property="id" column="id" jdbcType="BIGINT" javaType="java.lang.Long"/>
+    <result property="version" column="version" jdbcType="BIGINT" javaType="java.lang.Long"/>
+    <result property="store.id" column="store_id" jdbcType="BIGINT" javaType="java.lang.Long"/>
+    <result property="store.protocol" column="protocol" jdbcType="VARCHAR" javaType="java.lang.String"/>
+    <result property="store.identifier" column="identifier" jdbcType="VARCHAR" javaType="java.lang.String"/>
+    <result property="uuid" column="uuid" jdbcType="VARCHAR" javaType="java.lang.String"/>
+    <result property="typeQNameId" column="type_qname_id" jdbcType="BIGINT" javaType="java.lang.Long"/>
+    <result property="localeId" column="locale_id" jdbcType="BIGINT" javaType="java.lang.Long"/>
+    <result property="aclId" column="acl_id" jdbcType="BIGINT" javaType="java.lang.Long"/>
+    <result property="ownerId" column="owner_id" jdbcType="BIGINT" javaType="java.lang.Long"/>
+    <result property="transaction.id" column="txn_id" jdbcType="BIGINT" javaType="java.lang.Long"/>
+    <result property="transaction.changeTxnId" column="txn_change_id" jdbcType="VARCHAR" javaType="java.lang.String"/>
+    <association property="auditableProperties" resultMap="alfresco.node.result_AuditProps"/>
+  </resultMap>
 
 </mapper>

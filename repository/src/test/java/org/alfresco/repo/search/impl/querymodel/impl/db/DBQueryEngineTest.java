@@ -109,7 +109,7 @@ public class DBQueryEngineTest
     {
         withMaxItems(5);
         prepareTemplate(dbQuery, createNodes(20));
-        when(assessor.isIncluded(any(Node.class))).thenReturn(true);
+        when(assessor.isIncluded(any(NodeEntityWithOwner.class))).thenReturn(true);
                 
         FilteringResultSet result = engine.acceleratedNodeSelection(options, dbQuery, assessor);
         
@@ -126,7 +126,7 @@ public class DBQueryEngineTest
     {
         withMaxItems(5);
         prepareTemplate(dbQuery, createNodes(20));
-        when(assessor.isIncluded(any(Node.class))).thenReturn(true);
+        when(assessor.isIncluded(any(NodeEntityWithOwner.class))).thenReturn(true);
                 
         FilteringResultSet result = engine.acceleratedNodeSelection(options, dbQuery, assessor);
 
@@ -141,7 +141,7 @@ public class DBQueryEngineTest
         withMaxItems(5);
         withSkipCount(10);
         prepareTemplate(dbQuery, createNodes(20));
-        when(assessor.isIncluded(any(Node.class))).thenReturn(true);
+        when(assessor.isIncluded(any(NodeEntityWithOwner.class))).thenReturn(true);
                 
         FilteringResultSet result = engine.acceleratedNodeSelection(options, dbQuery, assessor);
         
@@ -157,8 +157,8 @@ public class DBQueryEngineTest
     public void shouldResultSetHaveCorrectAmountOfRequiredNodesWhenSomeAreExcludedDueToDeclinedPermission()
     {
         withMaxItems(5);
-        List<Node> nodes = createNodes(20);
-        when(assessor.isIncluded(any(Node.class))).thenReturn(true);
+        List<NodeEntityWithOwner> nodes = createNodes(20);
+        when(assessor.isIncluded(any(NodeEntityWithOwner.class))).thenReturn(true);
         when(assessor.isIncluded(nodes.get(0))).thenReturn(false);
         when(assessor.isIncluded(nodes.get(1))).thenReturn(false);
         when(assessor.isIncluded(nodes.get(2))).thenReturn(false);
@@ -188,7 +188,7 @@ public class DBQueryEngineTest
     
     // shouldRequiredNumberOfNodesBeUnlimitedWhenMaxItemsIsNegative
         
-    private void prepareTemplate(DBQuery dbQuery, List<Node> nodes)
+    private void prepareTemplate(DBQuery dbQuery, List<NodeEntityWithOwner> nodes)
     {
         doAnswer(invocation -> {
             ResultHandler<Node> handler = (ResultHandler<Node>)invocation.getArgument(2);
@@ -236,9 +236,9 @@ public class DBQueryEngineTest
         when(options.getSkipCount()).thenReturn(skipCount);
     }
     
-    private List<Node> createNodes(int amount)
+    private List<NodeEntityWithOwner> createNodes(int amount)
     {
-        List<Node> nodes = new ArrayList<>();
+        List<NodeEntityWithOwner> nodes = new ArrayList<>();
         
         for(int i = 0; i < amount; i++)
         {
@@ -248,9 +248,9 @@ public class DBQueryEngineTest
         return nodes;
     }
     
-    private Node createNode(int id) 
+    private NodeEntityWithOwner createNode(int id) 
     {
-        Node node = spy(NodeEntity.class);
+        NodeEntityWithOwner node = spy(NodeEntityWithOwner.class);
 
         when(node.getId()).thenReturn((long)id);
 

@@ -135,6 +135,7 @@ public class SearchApiWebscript extends AbstractWebScript implements RecognizedP
             sb.append("}");
 
             webScriptResponse.addHeader("X-Response-Stats", sb.toString());
+            webScriptResponse.addHeader("X-Response-Versn", "1.02");
 
             //Write response
             setResponse(webScriptResponse, DEFAULT_SUCCESS);
