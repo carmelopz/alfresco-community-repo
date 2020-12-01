@@ -30,7 +30,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
-
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
  * <p>Java class for RecordValue complex type.
@@ -63,6 +64,10 @@ public class RecordValue
     protected String dataSource;
     @XmlAttribute
     protected String dataTrigger;
+    @XmlAttribute
+    protected boolean searchable=true;
+    @XmlElement(name = "SearchValue")
+    protected List<SearchValue> searchValue;
 
     /**
      * Gets the value of the dataExtractor property.
@@ -134,6 +139,36 @@ public class RecordValue
      */
     public void setDataTrigger(String value) {
         this.dataTrigger = value;
+    }
+
+    /**
+     *
+     * @return
+     * possible object is
+     *      {@link boolean }
+     */
+    public boolean isSearchable()
+    {
+        return searchable;
+    }
+
+    /**
+     * Sets the value of searchable attribute
+     * @param searchable
+     */
+    public void setSearchable(boolean searchable)
+    {
+        this.searchable = searchable;
+    }
+
+    public void setSearchValues(List<SearchValue> searchValue)
+    {
+        this.searchValue=searchValue;
+    }
+
+    public List<SearchValue> getSearchValue()
+    {
+        return this.searchValue;
     }
 
 }

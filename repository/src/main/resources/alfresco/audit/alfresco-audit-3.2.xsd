@@ -85,9 +85,13 @@
     <xs:complexType name="RecordValue">
         <xs:complexContent>
             <xs:extension base="a:KeyedAuditDefinition">
+                <xs:sequence>
+                    <xs:element name="SearchValue" type="a:SearchValue" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
                 <xs:attribute name="dataExtractor" type="a:NameAttribute" use="required" />
                 <xs:attribute name="dataSource" type="a:PathAttribute" use="optional" />
                 <xs:attribute name="dataTrigger" type="a:PathAttribute" use="optional" />
+                <xs:attribute name="searchable" type="xs:boolean" use="optional" default="true" />
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -98,6 +102,10 @@
                 <xs:attribute name="dataGenerator" type="a:NameAttribute" use="required" />
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="SearchValue">
+        <xs:attribute name="value" type="a:NameAttribute" use="required"/>
     </xs:complexType>
     
     <!--              -->

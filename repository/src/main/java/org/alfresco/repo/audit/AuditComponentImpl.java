@@ -25,22 +25,14 @@
  */
 package org.alfresco.repo.audit;
 
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.audit.extractor.DataExtractor;
 import org.alfresco.repo.audit.generator.DataGenerator;
 import org.alfresco.repo.audit.model.AuditApplication;
+import org.alfresco.repo.audit.model.AuditApplication.DataExtractorDefinition;
 import org.alfresco.repo.audit.model.AuditModelRegistry;
 import org.alfresco.repo.audit.model.AuditModelRegistryImpl;
-import org.alfresco.repo.audit.model.AuditApplication.DataExtractorDefinition;
+import org.alfresco.repo.audit.model._3.SearchValue;
 import org.alfresco.repo.domain.audit.AuditDAO;
 import org.alfresco.repo.domain.propval.PropertyValueDAO;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -56,6 +48,9 @@ import org.alfresco.util.PathMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.surf.util.ParameterCheck;
+
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * Component that records audit values as well as providing the query implementation.
@@ -525,7 +520,7 @@ public class AuditComponentImpl implements AuditComponent
     }
 
     @Override
-    public Map<String, Serializable> recordAuditValues(String rootPath, Map<String, Serializable> values)
+        public Map<String, Serializable> recordAuditValues(String rootPath, Map<String, Serializable> values)
     {
         return recordAuditValuesWithUserFilter(rootPath, values, true);
     }
@@ -808,6 +803,7 @@ public class AuditComponentImpl implements AuditComponent
             Map<String, Serializable> values)
     {
         Map<String, Serializable> newData = new HashMap<String, Serializable>(values.size());
+        Map<String, Serializable> fullAuditData = new HashMap<String, Serializable>(values.size());
         
         List<DataExtractorDefinition> extractors = application.getDataExtractors();
         for (DataExtractorDefinition extractorDef : extractors)
@@ -816,6 +812,8 @@ public class AuditComponentImpl implements AuditComponent
             String triggerPath = extractorDef.getDataTrigger();
             String sourcePath = extractorDef.getDataSource();
             String targetPath = extractorDef.getDataTarget();
+            boolean searchable=extractorDef.isSearchable();
+            List<SearchValue> searchValueList=extractorDef.getSearchValueList();
             
             // Check if it is triggered
             if (!values.containsKey(triggerPath))
@@ -852,7 +850,22 @@ public class AuditComponentImpl implements AuditComponent
                         e);
             }
             // Add it to the map
-            newData.put(targetPath, data);
+            if (searchable)
+            {
+                if (searchValueList != null && searchValueList.size() > 0)
+                {
+                    searchValueList.stream().filter(s -> s.getValue().equals(data)).findFirst().ifPresent(val -> {
+                        newData.put(targetPath, data);
+                        System.out.println(val);
+                    });
+
+                }
+                else
+                {
+                    newData.put(targetPath, data);
+                }
+
+            }
         }
         // Done
         if (logger.isDebugEnabled())

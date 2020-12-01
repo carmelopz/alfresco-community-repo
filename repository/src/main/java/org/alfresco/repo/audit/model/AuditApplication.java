@@ -25,23 +25,14 @@
  */
 package org.alfresco.repo.audit.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 import org.alfresco.repo.audit.extractor.DataExtractor;
 import org.alfresco.repo.audit.generator.DataGenerator;
-import org.alfresco.repo.audit.model._3.Application;
-import org.alfresco.repo.audit.model._3.AuditPath;
-import org.alfresco.repo.audit.model._3.GenerateValue;
-import org.alfresco.repo.audit.model._3.RecordValue;
+import org.alfresco.repo.audit.model._3.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Helper class that wraps the {@link Application audit application}.
@@ -302,6 +293,8 @@ public class AuditApplication
         private final String dataSource;
         private final String dataTarget;
         private final DataExtractor dataExtractor;
+        private final boolean searchable;
+        private final List<SearchValue> searchValueList;
 
         /**
          * @param dataTrigger           the data path that must exist for this extractor to be triggered
@@ -309,12 +302,14 @@ public class AuditApplication
          * @param dataTarget            the path to write data to
          * @param dataExtractor         the implementation to use
          */
-        public DataExtractorDefinition(String dataTrigger, String dataSource, String dataTarget, DataExtractor dataExtractor)
+        public DataExtractorDefinition(String dataTrigger, String dataSource, String dataTarget, DataExtractor dataExtractor, boolean searchable, List<SearchValue> searchValueList)
         {
             this.dataTrigger = dataTrigger;
             this.dataSource = dataSource;
             this.dataTarget = dataTarget;
             this.dataExtractor = dataExtractor;
+            this.searchable=searchable;
+            this.searchValueList=searchValueList;
         }
 
         /**
@@ -338,6 +333,16 @@ public class AuditApplication
         public DataExtractor getDataExtractor()
         {
             return dataExtractor;
+        }
+
+        public boolean isSearchable()
+        {
+            return searchable;
+        }
+
+        public List<SearchValue> getSearchValueList()
+        {
+            return this.searchValueList;
         }
     }
     
@@ -468,7 +473,8 @@ public class AuditApplication
                 dataTrigger = currentPath;
             }
             // Store the extractor definition
-            DataExtractorDefinition extractorDef = new DataExtractorDefinition(dataTrigger, sourcePath, extractorPath, extractor);
+            DataExtractorDefinition extractorDef = new DataExtractorDefinition(dataTrigger, sourcePath, extractorPath,
+                        extractor, element.isSearchable(), element.getSearchValue());
             dataExtractors.add(extractorDef);
         }
 
