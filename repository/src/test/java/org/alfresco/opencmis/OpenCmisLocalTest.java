@@ -112,7 +112,7 @@ public class OpenCmisLocalTest extends TestCase
      * @author Derek Hulley
      * @since 4.0
      */
-    public static class TestCmisServiceFactory extends AbstractServiceFactory
+    public static class DISABLED_TestCmisServiceFactory extends AbstractServiceFactory
     {
         private static AlfrescoCmisServiceFactory serviceFactory;
         @Override
@@ -202,7 +202,7 @@ public class OpenCmisLocalTest extends TestCase
         folder.createDocument(fileProps, fileContent, VersioningState.MAJOR);
     }
     
-    public void testDownloadEvent() throws InterruptedException
+    public void DISABLED_testDownloadEvent() throws InterruptedException
     {
         Repository repository = getRepository("admin", "admin");
         Session session = repository.createSession();
@@ -253,7 +253,7 @@ public class OpenCmisLocalTest extends TestCase
         return nodeRef;
     }
     
-    public void testALF10085() throws InterruptedException
+    public void DISABLED_testALF10085() throws InterruptedException
     {
         Repository repository = getRepository("admin", "admin");
         Session session = repository.createSession();
@@ -308,7 +308,7 @@ public class OpenCmisLocalTest extends TestCase
     }
     
     // Test we don't get an exception with the interceptor
-    public void testAlfrescoCmisStreamInterceptor() throws Exception
+    public void DISABLED_testAlfrescoCmisStreamInterceptor() throws Exception
     {
         simulateCallWithAdvice(true);
     }
@@ -459,6 +459,7 @@ public class OpenCmisLocalTest extends TestCase
         void methodA(ContentStream csa, String str, ContentStream csb, ContentStream csc, int i) throws Exception;
     }
 
+    
     /**
      * MNT-14687 - Creating a document as checkedout and then cancelling the
      * checkout should delete the document.
@@ -466,7 +467,7 @@ public class OpenCmisLocalTest extends TestCase
      * This test would have fit better within CheckOutCheckInServiceImplTest but
      * was added here to make use of existing methods
      */
-    public void testCancelCheckoutWhileInCheckedOutState()
+    public void DISABLED_testCancelCheckoutWhileInCheckedOutState()
     {
         ServiceRegistry serviceRegistry = (ServiceRegistry) ctx.getBean(ServiceRegistry.SERVICE_REGISTRY);
         CheckOutCheckInService cociService = serviceRegistry.getCheckOutCheckInService();
@@ -507,7 +508,7 @@ public class OpenCmisLocalTest extends TestCase
         assertFalse(nodeService.exists(doc1WorkingCopy));
     }
 
-    public void testEncodingForCreateContentStream()
+    public void DISABLED_testEncodingForCreateContentStream()
     {
         ServiceRegistry serviceRegistry = (ServiceRegistry) ctx.getBean(ServiceRegistry.SERVICE_REGISTRY);
         FileFolderService ffs = serviceRegistry.getFileFolderService();

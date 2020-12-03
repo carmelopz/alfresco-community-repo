@@ -141,6 +141,7 @@ public class SearchApiWebscript extends AbstractWebScript implements RecognizedP
                 addStopWatchStats(sb, DBStats.aclOwnerStopWatch());
                 sb.append("}");
     
+                sb.append(" ver=1.1");
                 webScriptResponse.addHeader("X-Response-Stats", sb.toString());
             }
 
