@@ -459,8 +459,6 @@ public class IntegrationFullTests1 extends IntegrationTest
         ftpProtocol.authenticateUser(testUser).usingSite(testSitePublic).usingResource(file1).update(newContent)   
             .assertThat().contentIs(newContent);
         
-        /* @Category(FrequentlyFailingTests.class) ACS-965 - @Category not supported by TAS tests, so commenting out for now
-
         STEP("8. U1 adds tags to file1 using RestAPI");
         String newTag = RandomData.getRandomName("tag");
         RestTagModel tag = restAPI.authenticateUser(testUser).withCoreAPI().usingResource(file1).addTag(newTag);
@@ -476,7 +474,5 @@ public class IntegrationFullTests1 extends IntegrationTest
             .assertThat().contentPropertyHasValue("cmis:name", newName)
             .assertThat().contentPropertyHasValue("cm:taggable", tag.getId())
             .assertThat().contentIs(newContent);
-
-        */
     }
 }
