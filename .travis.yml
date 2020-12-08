@@ -255,7 +255,7 @@ jobs:
         - travis_wait 30 mvn -B install -f packaging/tests/tas-webdav/pom.xml -Pall-tas-tests -Denvironment=default -DrunBugs=false
 
     - name: "Integration TAS tests"
-      if: branch = master OR commit_message =~ /\[tas\]/
+      if: branch = master OR commit_message =~ /\[tas\]/ OR commit_message =~ /\[acs-965-test\]/
       before_script:
         - ${TAS_SCRIPTS}/start-compose.sh ${TAS_ENVIRONMENT}/docker-compose-minimal.yml
         - ${TAS_SCRIPTS}/wait-for-alfresco-start.sh "http://localhost:8082/alfresco"
