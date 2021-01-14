@@ -721,6 +721,11 @@
           <nullable>true</nullable>
           <autoincrement>false</autoincrement>
         </column>
+        <column name="audit_value" order="6">
+          <type>bytea</type>
+          <nullable>true</nullable>
+          <autoincrement>false</autoincrement>
+        </column>
       </columns>
       <primarykey name="alf_audit_entry_pkey">
         <columnnames>
@@ -766,6 +771,33 @@
           </columnnames>
         </index>
       </indexes>
+    </table>
+    <table name="alf_audit_entry_value">
+      <columns>
+      <column name="audit_entry_id" order="1">
+        <type>int8</type>
+        <nullable>false</nullable>
+        <autoincrement>false</autoincrement>
+      </column>
+        <column name="audit_entry_value" order="2">
+         <type>bytea</type>
+          <nullable>false</nullable>
+          <autoincrement>false</autoincrement>
+        </column>
+      </columns>
+      <primarykey name="alf_audit_entry_value_pkey">
+        <columnnames>
+          <columnname order="1">id</columnname>
+        </columnnames>
+      </primarykey>
+      <foreignkeys>
+      <foreignkey name="fk_alf_aud_ent_id">
+        <localcolumn>audit_entry_id</localcolumn>
+        <targettable>alf_audit_entry</targettable>
+        <targetcolumn>id</targetcolumn>
+      </foreignkey>
+      </foreignkeys>
+
     </table>
     <table name="alf_audit_model">
       <columns>

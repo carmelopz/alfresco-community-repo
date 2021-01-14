@@ -121,7 +121,7 @@ public class EntityLookupCache<K extends Serializable, V extends Object, VK exte
          * @param value         the value (business object) used to identify the entity (<tt>null</tt> allowed).
          * @return              Return the newly-created entity ID-value pair
          */
-        Pair<K1, V1> createValue(V1 value);
+        Pair<K1, V1>    createValue(V1 value);
         
         /**
          * Update the entity identified by the given key.

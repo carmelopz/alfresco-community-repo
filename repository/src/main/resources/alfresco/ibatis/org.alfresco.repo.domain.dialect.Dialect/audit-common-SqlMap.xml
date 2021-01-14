@@ -89,13 +89,13 @@
     </sql>
     
     <sql id="insert_AuditEntry_AutoIncrement">
-        insert into alf_audit_entry (audit_app_id, audit_user_id, audit_time, audit_values_id) 
-        values (#{auditApplicationId}, #{auditUserId}, #{auditTime}, #{auditValuesId})
+        insert into alf_audit_entry (audit_app_id, audit_user_id, audit_time, audit_values_id, audit_value)
+        values (#{auditApplicationId}, #{auditUserId}, #{auditTime}, #{auditValuesId}, #{auditValue})
     </sql>
     
     <sql id="insert_AuditEntry_Sequence">
-        insert into alf_audit_entry (id, audit_app_id, audit_user_id, audit_time, audit_values_id) 
-        values (#{id}, #{auditApplicationId}, #{auditUserId,jdbcType=BIGINT}, #{auditTime}, #{auditValuesId,jdbcType=BIGINT})
+        insert into alf_audit_entry (id, audit_app_id, audit_user_id, audit_time, audit_values_id, audit_value)
+        values (#{id}, #{auditApplicationId}, #{auditUserId,jdbcType=BIGINT}, #{auditTime}, #{auditValuesId,jdbcType=BIGINT}, #{auditValue,jdbcType=VARCHAR})
     </sql>
     
     <!--                -->

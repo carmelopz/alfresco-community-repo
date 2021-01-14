@@ -25,12 +25,11 @@
  */
 package org.alfresco.repo.domain.audit.ibatis;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPOutputStream;
 
 import org.alfresco.repo.domain.audit.AbstractAuditDAOImpl;
 import org.alfresco.repo.domain.audit.AuditApplicationEntity;
@@ -202,13 +201,32 @@ public class AuditDAOImpl extends AbstractAuditDAOImpl
     }
 
     @Override
-    protected AuditEntryEntity createAuditEntry(Long applicationId, long time, Long usernameId, Long valuesId)
+    protected AuditEntryEntity createAuditEntry(Long applicationId, long time, Long usernameId, Long valuesId,
+                String auditValue)
     {
         AuditEntryEntity entity = new AuditEntryEntity();
         entity.setAuditApplicationId(applicationId);
         entity.setAuditTime(time);
         entity.setAuditUserId(usernameId);
         entity.setAuditValuesId(valuesId);
+        try
+        {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            GZIPOutputStream gzip = new GZIPOutputStream(out);
+            gzip.write(auditValue.getBytes());
+
+            entity.setAuditValue(out.toByteArray());
+           // entity.setAuditValue(Base64.getEncoder().encodeToString(auditValue.getBytes()));
+
+        }catch(Exception ex)
+        {
+            ex.printStackTrace();
+        }
+
+
+        //System.out.println("\n Begin---------------------------------------------------------------------------------");
+        //System.out.println(auditValue);
+        //System.out.println("\n End--------------------------------------------------------------------------------");
         template.insert(INSERT_ENTRY, entity);
         return entity;
     }
@@ -319,7 +337,7 @@ public class AuditDAOImpl extends AbstractAuditDAOImpl
                 }
             };
             
-            List<AuditQueryResult> rows = template.selectList(SELECT_ENTRIES_WITHOUT_VALUES, params, new RowBounds(0, maxResults));
+                List<AuditQueryResult> rows = template.selectList(SELECT_ENTRIES_WITHOUT_VALUES, params, new RowBounds(0, maxResults));
             for (AuditQueryResult row : rows)
             {
                 resultsByValueId.put(row.getAuditValuesId(), row);

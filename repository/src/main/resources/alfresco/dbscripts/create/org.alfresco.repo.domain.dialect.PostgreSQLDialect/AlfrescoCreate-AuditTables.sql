@@ -43,6 +43,7 @@ CREATE TABLE alf_audit_entry
    audit_time INT8 NOT NULL,
    audit_user_id INT8 NULL,
    audit_values_id INT8 NULL,
+   audit_value BYTEA NULL,
    CONSTRAINT fk_alf_aud_ent_app FOREIGN KEY (audit_app_id) REFERENCES alf_audit_app (id) ON DELETE CASCADE,   
    CONSTRAINT fk_alf_aud_ent_use FOREIGN KEY (audit_user_id) REFERENCES alf_prop_value (id),
    CONSTRAINT fk_alf_aud_ent_pro FOREIGN KEY (audit_values_id) REFERENCES alf_prop_root (id),
@@ -52,3 +53,11 @@ CREATE INDEX idx_alf_aud_ent_tm ON alf_audit_entry(audit_time);
 CREATE INDEX fk_alf_aud_ent_app ON alf_audit_entry(audit_app_id);
 CREATE INDEX fk_alf_aud_ent_use ON alf_audit_entry(audit_user_id);
 CREATE INDEX fk_alf_aud_ent_pro ON alf_audit_entry(audit_values_id);
+
+CREATE TABLE alf_audit_entry_value
+(
+    audit_entry_id INT8 NOT NULL,
+    audit_entry_value BYTEA NOT NULL,
+    CONSTRAINT fk_alf_aud_ent_id FOREIGN KEY (audit_entry_id) REFERENCES alf_audit_entry (id) ON DELETE CASCADE,
+    PRIMARY KEY (audit_entry_id)
+);

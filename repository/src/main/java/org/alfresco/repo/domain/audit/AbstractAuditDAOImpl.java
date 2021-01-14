@@ -38,6 +38,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.zip.CRC32;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.domain.contentdata.ContentDataDAO;
@@ -282,7 +284,7 @@ public abstract class AbstractAuditDAOImpl implements AuditDAO
      * alf_audit_entry
      */
 
-    public Long createAuditEntry(Long applicationId, long time, String username, Map<String, Serializable> values)
+    public Long createAuditEntry(Long applicationId, long time, String username, Map<String, Serializable> values, Map<String, Serializable> nonSearchableValues)
     {
         final Long usernameId;
         if (username != null)
@@ -300,8 +302,8 @@ public abstract class AbstractAuditDAOImpl implements AuditDAO
             valuesId = propertyValueDAO.createProperty((Serializable)values);
         }
 
-        // Create the audit entry
-        AuditEntryEntity entity = createAuditEntry(applicationId, time, usernameId, valuesId);
+        String json = getJsonString(nonSearchableValues);
+        AuditEntryEntity entity = createAuditEntry(applicationId, time, usernameId, valuesId, json);
 
         // Done
         if (logger.isDebugEnabled())
@@ -315,7 +317,22 @@ public abstract class AbstractAuditDAOImpl implements AuditDAO
         }
         return entity.getId();
     }
-    
+
+    private String getJsonString(Map<String, Serializable> values)
+    {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        String json=null;
+        try {
+             json = objectMapper.writeValueAsString(values);
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        // Create the audit entry
+        return json;
+    }
+
     public int deleteAuditEntries(List<Long> auditEntryIds)
     {
         // Ensure that we don't have duplicates
@@ -347,7 +364,7 @@ public abstract class AbstractAuditDAOImpl implements AuditDAO
         return deleted;
     }
 
-    protected abstract AuditEntryEntity createAuditEntry(Long applicationId, long time, Long usernameId, Long valuesId);
+    protected abstract AuditEntryEntity createAuditEntry(Long applicationId, long time, Long usernameId, Long valuesId,String auditValue);
     protected abstract int deleteAuditEntriesImpl(List<Long> auditEntryIds);
     
     /*

@@ -44,6 +44,7 @@ import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransacti
 import org.alfresco.service.cmr.audit.AuditQueryParameters;
 import org.alfresco.service.cmr.audit.AuditService.AuditQueryCallback;
 import org.alfresco.service.transaction.TransactionService;
+import org.alfresco.util.Pair;
 import org.alfresco.util.PathMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -708,30 +709,37 @@ public class AuditComponentImpl implements AuditComponent
         Map<String, Serializable> auditData = generateData(generators);
 
         // Now extract values
-        Map<String, Serializable> extractedData = AuthenticationUtil.runAs(new RunAsWork<Map<String, Serializable>>()
+        Pair<Map<String, Serializable>,Map<String, Serializable>> extractedDataPair = AuthenticationUtil.runAs(new RunAsWork<Pair<Map<String, Serializable>,Map<String, Serializable>> >()
         {
-            public Map<String, Serializable> doWork() throws Exception
+            public Pair<Map<String, Serializable>,Map<String, Serializable>> doWork() throws Exception
             {
                 return extractData(application, values);
             }
         }, AuthenticationUtil.getSystemUserName());
 
         // Combine extracted and generated values (extracted data takes precedence)
-        auditData.putAll(extractedData);
+        Map<String, Serializable> searchableData=extractedDataPair.getFirst();
+        Map<String, Serializable> nonSearchableData=extractedDataPair.getSecond();
+        auditData.putAll(searchableData);
 
         // Filter data
         // See MNT-14136, MNT-8401
-        for (Map.Entry<String, Serializable> value : auditData.entrySet())
+        if(!filterAuditData(auditData) || !filterAuditData(nonSearchableData))
         {
-            String root = value.getKey();
-            int index = root.lastIndexOf("/");
-            Map<String, Serializable> argc = new HashMap<String, Serializable>(1);
-            argc.put(root.substring(index, root.length()).substring(1), value.getValue());
-            if (!auditFilter.accept(root.substring(0, index), argc))
-            {
-                return Collections.emptyMap();
-            }
+            return Collections.emptyMap();
         }
+
+//        for (Map.Entry<String, Serializable> value : auditData.entrySet())
+//        {
+//            String root = value.getKey();
+//            int index = root.lastIndexOf("/");
+//            Map<String, Serializable> argc = new HashMap<String, Serializable>(1);
+//            argc.put(root.substring(index, root.length()).substring(1), value.getValue());
+//            if (!auditFilter.accept(root.substring(0, index), argc))
+//            {
+//                return Collections.emptyMap();
+//            }
+//        }
 
         // Time and username are intrinsic
         long time = System.currentTimeMillis();
@@ -744,7 +752,7 @@ public class AuditComponentImpl implements AuditComponent
             boolean justGatherPreCallData = application.isApplicationJustGeneratingPreCallData();
             if (!justGatherPreCallData)
             {
-                entryId = auditDAO.createAuditEntry(applicationId, time, username, auditData);
+                entryId = auditDAO.createAuditEntry(applicationId, time, username, auditData, nonSearchableData);
             }
             // Done
             if (logger.isDebugEnabled())
@@ -788,7 +796,25 @@ public class AuditComponentImpl implements AuditComponent
         
         return auditData;
     }
-    
+
+    private boolean filterAuditData(Map<String, Serializable> auditData)
+    {
+        // See MNT-14136, MNT-8401
+        for (Map.Entry<String, Serializable> value : auditData.entrySet())
+        {
+            String root = value.getKey();
+            int index = root.lastIndexOf("/");
+            Map<String, Serializable> argc = new HashMap<String, Serializable>(1);
+            argc.put(root.substring(index, root.length()).substring(1), value.getValue());
+            if (!auditFilter.accept(root.substring(0, index), argc))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Extracts data from a given map using data extractors from the given application.
      * 
@@ -798,14 +824,15 @@ public class AuditComponentImpl implements AuditComponent
      * 
      * @since 3.2
      */
-    private Map<String, Serializable> extractData(
+    private Pair<Map<String, Serializable>,Map<String, Serializable>> extractData(
             AuditApplication application,
             Map<String, Serializable> values)
     {
         Map<String, Serializable> newData = new HashMap<String, Serializable>(values.size());
-        Map<String, Serializable> fullAuditData = new HashMap<String, Serializable>(values.size());
+        Map<String, Serializable> nonSearchableData = new HashMap<String, Serializable>(values.size());
         
         List<DataExtractorDefinition> extractors = application.getDataExtractors();
+
         for (DataExtractorDefinition extractorDef : extractors)
         {
             DataExtractor extractor = extractorDef.getDataExtractor();
@@ -854,10 +881,18 @@ public class AuditComponentImpl implements AuditComponent
             {
                 if (searchValueList != null && searchValueList.size() > 0)
                 {
-                    searchValueList.stream().filter(s -> s.getValue().equals(data)).findFirst().ifPresent(val -> {
-                        newData.put(targetPath, data);
-                        System.out.println(val);
-                    });
+                    boolean searchValue=searchValueList.stream().filter(s -> s.getValue().equals(data)).findFirst().isPresent();
+                    if(searchValue)
+                    {
+
+                            newData.put(targetPath, data);
+                            System.out.println(data);
+
+                    }
+                    else
+                    {
+                        nonSearchableData.put(targetPath, data);
+                    }
 
                 }
                 else
@@ -865,6 +900,10 @@ public class AuditComponentImpl implements AuditComponent
                     newData.put(targetPath, data);
                 }
 
+            }
+            else
+            {
+                nonSearchableData.put(targetPath, data);
             }
         }
         // Done
@@ -886,7 +925,8 @@ public class AuditComponentImpl implements AuditComponent
             }
             logger.debug(sb.toString());
         }
-        return newData;
+
+        return new Pair(newData, nonSearchableData);
     }
     
     /**

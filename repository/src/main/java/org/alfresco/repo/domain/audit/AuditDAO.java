@@ -209,7 +209,7 @@ public interface AuditDAO
      * 
      * @since 3.2
      */
-    Long createAuditEntry(Long applicationId, long time, String username, Map<String, Serializable> values);
+    Long createAuditEntry(Long applicationId, long time, String username, Map<String, Serializable> values, Map<String, Serializable> nonSearchablevalues);
     
     /**
      * Find audit entries using the given parameters, any of which may be null

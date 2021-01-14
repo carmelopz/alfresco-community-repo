@@ -191,7 +191,7 @@ public class AuditDAOTest extends TestCase
                 {
                     Map<String, Serializable> values = Collections.singletonMap("/a/b/c", (Serializable) new Integer(i));
                     long now = System.currentTimeMillis();
-                    auditDAO.createAuditEntry(sessionId, now, username, values);
+                    auditDAO.createAuditEntry(sessionId, now, username, values, Collections.emptyMap());
                 }
                 return null;
             }
@@ -645,7 +645,7 @@ public class AuditDAOTest extends TestCase
         String username = "alexi";    
         Map<String, Serializable> values = Collections.singletonMap("/a/b/c", (Serializable) value);
         long now = System.currentTimeMillis();
-        auditDAO.createAuditEntry(appInfo.getId(), now, username, values);
+        auditDAO.createAuditEntry(appInfo.getId(), now, username, values, Collections.emptyMap());
     }
 
     
@@ -788,7 +788,7 @@ public class AuditDAOTest extends TestCase
                 values.put("/a/b/date-" + j, dateValue);
                 // TODO: how to deal with Serializable values which cannot be retrieved later in test by value alone?
                 long now = System.currentTimeMillis();
-                auditDAO.createAuditEntry(info1.getId(), now, username, values);
+                auditDAO.createAuditEntry(info1.getId(), now, username, values, Collections.emptyMap());
 
                 auditDAO.findAuditEntries(preDeleteCallback, new AuditQueryParameters(), Integer.MAX_VALUE);
                 assertEquals(1, preDeleteCallback.numEntries(app1));

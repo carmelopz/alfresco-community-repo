@@ -40,6 +40,7 @@ public class AuditEntryEntity
     private Long auditUserId;
     private long auditTime;
     private Long auditValuesId;
+    public byte[] auditValue;
     
     public AuditEntryEntity()
     {
@@ -106,5 +107,15 @@ public class AuditEntryEntity
     public void setAuditValuesId(Long auditValuesId)
     {
         this.auditValuesId = auditValuesId;
+    }
+
+    public void setAuditValue(byte[] auditValue)
+    {
+        this.auditValue=auditValue;
+    }
+
+    public byte[] getAuditValue()
+    {
+        return this.auditValue;
     }
 }

@@ -38,6 +38,7 @@ CREATE TABLE alf_audit_entry
    audit_time BIGINT NOT NULL,
    audit_user_id BIGINT NULL,
    audit_values_id BIGINT NULL,
+   audit_value TEXT NULL,
    CONSTRAINT fk_alf_aud_ent_app FOREIGN KEY (audit_app_id) REFERENCES alf_audit_app (id) ON DELETE CASCADE,
    INDEX idx_alf_aud_ent_tm (audit_time),
    CONSTRAINT fk_alf_aud_ent_use FOREIGN KEY (audit_user_id) REFERENCES alf_prop_value (id),
