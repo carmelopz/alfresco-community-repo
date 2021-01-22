@@ -17,7 +17,7 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- Jakarta -->
+        <!-- Jakarta... -->
         <dependency>
             <groupId>jakarta.xml.rpc</groupId>
             <artifactId>jakarta.xml.rpc-api</artifactId>
