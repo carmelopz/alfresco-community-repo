@@ -725,7 +725,7 @@
                 <exclusions>
                     <exclusion>
                         <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>*</artifactId>
+                        <artifactId>jaxb-core</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
